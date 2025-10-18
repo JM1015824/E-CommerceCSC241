@@ -26,9 +26,9 @@ public class LoginGUI extends JFrame {
         panel.add(nameField);
         panel.add(passLabel);
         panel.add(passField);
-        panel.add(new JLabel()); // empty cell
+        panel.add(new JLabel()); 
         panel.add(loginButton);
-        panel.add(new JLabel()); // empty cell
+        panel.add(new JLabel()); 
         panel.add(registerButton);
 
         add(panel);
@@ -56,3 +56,4 @@ public class LoginGUI extends JFrame {
         });
     }
 }
+
