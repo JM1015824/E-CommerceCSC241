@@ -1,9 +1,11 @@
+
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cart {
     private final int cartId;
-    private final String customerName;  
+    private final String customerName;
     private final List<CartItem> items;
 
     public Cart(int cartId, String customerName) {
@@ -30,7 +32,7 @@ public class Cart {
             throw new IllegalArgumentException("Quantity must be greater than zero.");
         }
 
-        if (quantity > product.getAvailableQuantity()) {
+        if (quantity > product.getQuantity()) {
             throw new IllegalArgumentException("Insufficient product quantity available for " + product.getName());
         }
 
@@ -48,7 +50,7 @@ public class Cart {
 
     // Remove item by product ID
     public void removeItem(int productId) {
-        boolean removed = items.removeIf(item -> item.getProduct().getId() == productId);
+        boolean removed = items.removeIf(item -> item.getProduct().getId().equals(productId));
         if (removed) {
             System.out.println("Removed product with ID: " + productId + " from cart.");
         } else {
@@ -59,10 +61,10 @@ public class Cart {
     // Update item quantity
     public void updateItemQuantity(int productId, int newQuantity) {
         for (CartItem item : items) {
-            if (item.getProduct().getId() == productId) {
+            if (item.getProduct().getId().equals(productId)) {
                 if (newQuantity <= 0) {
                     removeItem(productId);
-                } else if (newQuantity > item.getProduct().getAvailableQuantity()) {
+                } else if (newQuantity > item.getProduct().getQuantity()) {
                     System.out.println("Not enough stock for " + item.getProduct().getName());
                 } else {
                     item.setQuantity(newQuantity);
