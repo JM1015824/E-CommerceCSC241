@@ -28,6 +28,33 @@ public class Main {
             System.out.println(product);
         }
 
+       // Create a cart and add items
+        Cart cart = new Cart(1, "John Doe");
+        Product product1 = new Product("P001", "Laptop", "Electronics", 999.99, 10);
+        Product product2 = new Product("P002", "Smartphone", "Electronics", 499.99, 20);    
+    
+        cart.addItem(product1, 1);
+        cart.addItem(product2, 2);
+    
+        // Display cart details
+        System.out.println("Cart Details: " + cart.getItems());
+    
+        // Calculate total amount
+        System.out.println("Cart Total Amount: " + cart.getTotalAmount());
+    
+        // Create an order from the cart
+        Order order = new Order(1001, "John Doe", cart.getItems(), cart.getTotalAmount());
+        System.out.println("Order Details: " + order);
+    
+        // Manage orders
+        OrderInventory orderInventory = new OrderInventory();
+        orderInventory.addOrder(order);
+        System.out.println("All Orders: " + orderInventory.getOrders());
+        
+        // Update order status
+        orderInventory.updateOrderStatus(1001, Status.SHIPPED);
+        System.out.println("Updated Order Status: " + orderInventory.getOrderById(1001));   
+        
         // Launch the login GUI
         SwingUtilities.invokeLater(() -> {
             new LoginGUI(userStorage, loginManager).setVisible(true);
