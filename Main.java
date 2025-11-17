@@ -52,8 +52,7 @@ public class Main {
         System.out.println("All Orders: " + orderInventory.getOrders());
         
         // Update order status
-        orderInventory.updateOrderStatus(1001, Status.SHIPPED);
-        System.out.println("Updated Order Status: " + orderInventory.getOrderById(1001));   
+        orderInventory.updateOrderStatus(1001, Order.Status.SHIPPED);
         
         // Launch the login GUI
         SwingUtilities.invokeLater(() -> {

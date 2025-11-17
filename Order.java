@@ -36,8 +36,8 @@ public class Order {
         return status;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(Status shipped) {
+        this.status = shipped;
     }
 
     public Date getTimestamp() {

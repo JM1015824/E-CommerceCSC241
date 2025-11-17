@@ -22,13 +22,13 @@ public class OrderInventory {
                 throw new IllegalArgumentException("Invalid quantity for product: " + item.getProduct().getName());
             }
 
-            if (item.getQuantity() > item.getProduct().getAvailableQuantity()) {
+            if (item.getQuantity() > item.getProduct().getQuantity()) {
                 throw new IllegalArgumentException("Insufficient stock for product: " + item.getProduct().getName());
             }
 
             // Deduct stock
-            int newQuantity = item.getProduct().getAvailableQuantity() - item.getQuantity();
-            item.getProduct().setAvailableQuantity(newQuantity);
+            int newQuantity = item.getProduct().getQuantity() - item.getQuantity();
+            item.getProduct().setQuantity(newQuantity);
 
             totalAmount += item.getTotalPrice();
         }
@@ -119,12 +119,13 @@ public class OrderInventory {
     }
 
     // Update an order’s status manually (Admin function)
-    public boolean updateOrderStatus(int orderId, Order.Status status) {
+    public void updateOrderStatus(int orderId, Order.Status newStatus) {
         Order order = getOrderById(orderId);
         if (order != null) {
-            order.setStatus(status);
-            return true;
+            order.setStatus(newStatus);
+            System.out.println("Order ID " + orderId + " status updated to " + newStatus);
+        } else {
+            System.out.println("Order ID " + orderId + " not found.");
         }
-        return false;
     }
 }

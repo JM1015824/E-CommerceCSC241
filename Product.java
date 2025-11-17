@@ -31,5 +31,15 @@ public class Product {
                 ", category='" + category + '\'' + ", price=" + price +
                 ", quantity=" + quantity + '}';
     }
+
+    public int getAvailableQuantity() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAvailableQuantity'");
+    }
+
+    public void setAvailableQuantity(int newQuantity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setAvailableQuantity'");
+    }
 }
 

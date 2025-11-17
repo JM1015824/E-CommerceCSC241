@@ -50,12 +50,8 @@ public class Cart {
 
     // Remove item by product ID
     public void removeItem(int productId) {
-        boolean removed = items.removeIf(item -> item.getProduct().getId().equals(productId));
-        if (removed) {
-            System.out.println("Removed product with ID: " + productId + " from cart.");
-        } else {
-            System.out.println("Product with ID: " + productId + " not found in cart.");
-        }
+        items.removeIf(item -> item.getProduct().getId().equals(productId));
+        System.out.println("Removed product with ID: " + productId + " from cart.");
     }
 
     // Update item quantity
