@@ -29,7 +29,7 @@ public class CustomerDashboard extends JFrame {
 
         // test item button
         addItemBtn.addActionListener(e -> {
-            Product p = new Product(1, "Sample", 10.0, 10);
+            Product p = new Product("1", "Sample", "Category", 10.0, 10);
             cart.addItem(p, 1);
             JOptionPane.showMessageDialog(this, "Added Sample Item ($10)");
         });
@@ -45,10 +45,13 @@ public class CustomerDashboard extends JFrame {
 
             Order order = new Order(orderId, customerName, cart.getItems(), finalTotal);
 
-            OrderInventory.addOrder(order);
+            OrderInventory inventory = new OrderInventory();
+            inventory.addOrder(order);
+
 
             JOptionPane.showMessageDialog(this, 
                 "Order Placed!\nTotal: $" + finalTotal + "\nOrder ID: " + orderId);
         });
     }
 }
+
