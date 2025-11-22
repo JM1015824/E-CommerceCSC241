@@ -43,7 +43,7 @@ public class LoginGUI extends JFrame {
                 if (user.getRole().equals("admin")) {
                     new AdminDashboard().setVisible(true);
                 } else {
-                    new CustomerDashboard().setVisible(true);
+                    new CustomerDashboard(user.getName()).setVisible(true);
                 }
                 dispose();
             } else {
@@ -56,4 +56,5 @@ public class LoginGUI extends JFrame {
         });
     }
 }
+
 
