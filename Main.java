@@ -4,7 +4,6 @@ public class Main {
     public static void main(String[] args) {
         UserStorage userStorage = new UserStorage();
         ProductStorage productStorage = new ProductStorage();
-        LoginManager loginManager = new LoginManager(userStorage);
 
         // Add sample products
         productStorage.addProduct(new Product("P001", "Smartphone", "Electronics", 699.99, 15));
@@ -55,8 +54,7 @@ public class Main {
         orderInventory.updateOrderStatus(1001, Order.Status.SHIPPED);
         
         // Launch the login GUI
-        SwingUtilities.invokeLater(() -> {
-            new LoginGUI(userStorage, loginManager).setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new LoginFrame());
+
     }
 }

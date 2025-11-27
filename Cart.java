@@ -1,5 +1,4 @@
-
-
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,6 +103,16 @@ public class Cart {
         return total;
     }
 
+    // Applys coupon
+    public double applyCoupon(Coupon coupon) {
+        Date now = new Date();
+        if (coupon != null && coupon.getExpirationDate().after(now)) {
+            double discount = getTotalAmount() * (coupon.getPercentOff() / 100);
+            return getTotalAmount() - discount;
+        }
+        return getTotalAmount();
+    }
+    
     @Override
     public String toString() {
         return "Cart{" +
