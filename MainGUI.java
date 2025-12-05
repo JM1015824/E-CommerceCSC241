@@ -1,10 +1,12 @@
+
 import javax.swing.*;
-import java.awt.*;  
+import java.awt.*;
 import java.util.List;
 
 public class MainGUI{
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginFrame());
+        UserStorage userStorage = new UserStorage();
+        SwingUtilities.invokeLater(() -> new LoginFrame(userStorage));
     }
 }
 
@@ -13,15 +15,16 @@ class LoginFrame extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
+    private UserStorage userStorage;
 
+    public LoginFrame(UserStorage userStorage) {
+        this.userStorage = userStorage;
 
-    public LoginFrame() {
         setTitle("Login");
         setSize(300, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Login form components here
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -31,37 +34,62 @@ class LoginFrame extends JFrame {
 
         panel.add(new JLabel("Password:"));
         passwordField = new JPasswordField();
-        panel.add(passwordField);   
+        panel.add(passwordField);
 
         loginButton = new JButton("Login");
         loginButton.addActionListener(e -> authenticate());
         panel.add(loginButton);
 
+        JButton registerButton = new JButton("Register");
+        registerButton.addActionListener(e -> openRegisterFrame());
+        panel.add(registerButton);
+
         add(panel);
         setVisible(true);
     }
 
-    // Simple authentication method
+    private void openRegisterFrame() {
+        new RegisterGUI(userStorage).setVisible(true);  // RegisterGUI
+    }
+
     private void authenticate() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
 
-        // Hardcoded credentials for demonstration
-        if(username.equals("admin") && password.equals("password")) {
+        // Hardcoded accounts
+        if (username.equals("admin") && password.equals("password")) {
             dispose();
-            new AdminDashboard();
+            new AdminDashboard(userStorage);
+            return;
         } else if (username.equals("customer") && password.equals("password")) {
             EStore.currentCart = new Cart(1, "customer");
-            new CustomerDashboard();
+            new CustomerDashboard(userStorage);
             dispose();
+            return;
+        }
+
+        // UserStorage accounts
+        User user = userStorage.findUserByName(username);
+        if (user != null && user.getPassword().equals(password)) {
+            dispose();
+            if (user.getRole().equalsIgnoreCase("admin")) {
+                new AdminDashboard(userStorage);
+            } else {
+                EStore.currentCart = new Cart(1, user.getName());
+                new CustomerDashboard(userStorage);
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Invalid credentials", "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 }
 
+
 class AdminDashboard extends JFrame {
-    public AdminDashboard() {
+        private UserStorage userStorage;
+    public AdminDashboard(UserStorage userStorage) {
+        this.userStorage = userStorage;
         setTitle("Admin Dashboard");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -89,7 +117,8 @@ class AdminDashboard extends JFrame {
         
         logout.addActionListener(e -> {
             dispose();
-            new LoginFrame();
+            new LoginFrame(userStorage);
+
         });
 
         panel.add(addProduct);
@@ -99,9 +128,9 @@ class AdminDashboard extends JFrame {
         panel.add(updateOrderStatus);
         panel.add(reports);
         panel.add(logout);
-       
+
         add(panel);
-        setVisible(true);   
+        setVisible(true);
 
     }
 }
@@ -157,19 +186,19 @@ class AddProductFrame extends JFrame {
     private void saveProduct() {
         try{
             String id = productIdField.getText();
-            String name = productNameField.getText();   
+            String name = productNameField.getText();
             double price = Double.parseDouble(productPriceField.getText());
             String category = productCategoryField.getText();
             int quantity = Integer.parseInt(productQuantityField.getText());
-           
+
             Product newProduct = new Product(id, name, category, price, quantity);
-            EStore.productStorage.addProduct(newProduct); 
-           
+            EStore.productStorage.addProduct(newProduct);
+
             JOptionPane.showMessageDialog(this, "Product added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid price or quantity", "Error", JOptionPane.ERROR_MESSAGE);
-        } 
+        }
     }
 }
 
@@ -181,8 +210,8 @@ class UpdateDeleteProductFrame extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));   
-        
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         panel.add(new JLabel("Enter Product ID:"));
         JTextField productIdField = new JTextField();
         panel.add(productIdField);
@@ -239,7 +268,7 @@ class UpdateDeleteProductFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Product not found", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        
+
         deleteButton.addActionListener(e -> {
             String id = productIdField.getText();
             Product product = EStore.productStorage.getProductById(id);
@@ -247,22 +276,22 @@ class UpdateDeleteProductFrame extends JFrame {
             if (product == null) {
                 JOptionPane.showMessageDialog(this, "Product not found", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
-            } 
-            
+            }
+
             EStore.productStorage.removeProduct(id);
             JOptionPane.showMessageDialog(this, "Product deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
             productNameField.setText("");
-            productPriceField.setText("");  
+            productPriceField.setText("");
             productCategoryField.setText("");
             productQuantityField.setText("");
-            
+
         });
 
         add(panel);
         setVisible(true);
     }
-}   
+}
 
 class ViewProductsFrame extends JFrame {
     public ViewProductsFrame() {
@@ -272,7 +301,7 @@ class ViewProductsFrame extends JFrame {
         setLocationRelativeTo(null);
 
         List<Product> products = EStore.productStorage.getAllProducts();
-        
+
         String[] columnNames = {"Product ID", "Name", "Price", "Category", "Quantity"};
         Object[][] data = new Object[products.size()][5];
 
@@ -285,7 +314,7 @@ class ViewProductsFrame extends JFrame {
             data[i][3] = p.getCategory();
             data[i][4] = p.getQuantity();
         }
-        
+
 
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -304,9 +333,9 @@ class ViewOrdersFrame extends JFrame {
 
         String[] columnNames = {"Order ID", "Customer Name", "Product", "Quantity", "Total Price"};
         Object[][] data = {
-            {"201", "Alice", "Laptop", 1, 799.99},
-            {"202", "Bob", "Smartphone", 2, 999.98},
-            {"203", "Charlie", "Headphones", 1, 99.99}
+                {"201", "Alice", "Laptop", 1, 799.99},
+                {"202", "Bob", "Smartphone", 2, 999.98},
+                {"203", "Charlie", "Headphones", 1, 99.99}
         };
 
         JTable table = new JTable(data, columnNames);
@@ -420,7 +449,11 @@ class ReportsFrame extends JFrame {
 
 
 class CustomerDashboard extends JFrame {
-    public CustomerDashboard() {
+    private UserStorage userStorage;
+
+    public CustomerDashboard(UserStorage userStorage) {
+        this.userStorage = userStorage;
+
         setTitle("Customer Dashboard");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -434,7 +467,7 @@ class CustomerDashboard extends JFrame {
         JButton searchProducts = new JButton("Search Products");
         JButton viewCart = new JButton("View Cart");
         JButton orderHistory = new JButton("Order History");
-        JButton trackOrders = new JButton("Track Orders");  
+        JButton trackOrders = new JButton("Track Orders");
         JButton logout = new JButton("Logout");
 
         browseProducts.addActionListener(e -> new BrowseProductsFrame());
@@ -444,7 +477,7 @@ class CustomerDashboard extends JFrame {
         trackOrders.addActionListener(e -> new TrackOrdersFrame());
         logout.addActionListener(e -> {
             dispose();
-            new LoginFrame();
+            new LoginFrame(userStorage);
         });
 
         panel.add(browseProducts);
@@ -453,9 +486,9 @@ class CustomerDashboard extends JFrame {
         panel.add(orderHistory);
         panel.add(trackOrders);
         panel.add(logout);
-       
+
         add(panel);
-        setVisible(true);   
+        setVisible(true);
 
     }
 }
@@ -543,11 +576,11 @@ class searchProductsFrame extends JFrame {
                 StringBuilder message = new StringBuilder("Search Results:\n");
                 for (Product p : results) {
                     message.append("ID: ").append(p.getId())
-                           .append(", Name: ").append(p.getName())
-                           .append(", Price: $").append(p.getPrice())
-                           .append(", Category: ").append(p.getCategory())
-                           .append(", Quantity: ").append(p.getQuantity())
-                           .append("\n");
+                            .append(", Name: ").append(p.getName())
+                            .append(", Price: $").append(p.getPrice())
+                            .append(", Category: ").append(p.getCategory())
+                            .append(", Quantity: ").append(p.getQuantity())
+                            .append("\n");
                 }
                 JOptionPane.showMessageDialog(this, message.toString(), "Search Results", JOptionPane.INFORMATION_MESSAGE);
             }
@@ -626,7 +659,7 @@ class OrderHistoryFrame extends JFrame {
         setLocationRelativeTo(null);
 
 
-        List<Order> orders = EStore.orderInventory.getOrdersByCustomer("customer");        
+        List<Order> orders = EStore.orderInventory.getOrdersByCustomer("customer");
         String[] columnNames = {"Order ID", "Total Amount", "Status"};
         Object[][] data = new Object[orders.size()][3];
 
@@ -636,7 +669,7 @@ class OrderHistoryFrame extends JFrame {
             data[i][1] = order.getTotalAmount();
             data[i][2] = order.getStatus();
         }
-        
+
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane);
@@ -671,15 +704,15 @@ class TrackOrdersFrame extends JFrame {
 
                 if (ord != null) {
                     String message = "Order ID: " + ord.getOrderId() +
-                                     "\nCustomer Name: " + ord.getCustomerName() +
-                                     "\nTotal Amount: $" + ord.getTotalAmount() +
-                                     "\nStatus: " + ord.getStatus() +
-                                     "\nOrder Date: " + ord.getTimestamp();
+                            "\nCustomer Name: " + ord.getCustomerName() +
+                            "\nTotal Amount: $" + ord.getTotalAmount() +
+                            "\nStatus: " + ord.getStatus() +
+                            "\nOrder Date: " + ord.getTimestamp();
                     JOptionPane.showMessageDialog(this, message, "Order Details", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(this, "Order not found", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-                
+
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid Order ID", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -688,5 +721,4 @@ class TrackOrdersFrame extends JFrame {
         add(panel);
         setVisible(true);
     }
-}   
-
+}
