@@ -32,8 +32,8 @@ public class Main {
         Product product1 = new Product("P001", "Laptop", "Electronics", 999.99, 10);
         Product product2 = new Product("P002", "Smartphone", "Electronics", 499.99, 20);    
     
-        cart.addItem(product1, 1);
-        cart.addItem(product2, 2);
+        cart.addProduct(product1, 1);
+        cart.addProduct(product2, 2);
     
         // Display cart details
         System.out.println("Cart Details: " + cart.getItems());

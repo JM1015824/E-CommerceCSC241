@@ -75,14 +75,18 @@ class AdminDashboard extends JFrame {
         JButton updateProduct = new JButton("Update/Delete Product");
         JButton viewProducts = new JButton("View All Products");
         JButton viewOrders = new JButton("View Orders");
+        JButton updateOrderStatus = new JButton("Update Order Status");
         JButton reports = new JButton("Reports");
         JButton logout = new JButton("Logout");
+
 
         addProduct.addActionListener(e -> new AddProductFrame());
         updateProduct.addActionListener(e -> new UpdateDeleteProductFrame());
         viewProducts.addActionListener(e -> new ViewProductsFrame());
         viewOrders.addActionListener(e -> new ViewOrdersFrame());
+        updateOrderStatus.addActionListener(e -> new UpdateOrderStatusFrame());
         reports.addActionListener(e -> new ReportsFrame());
+        
         logout.addActionListener(e -> {
             dispose();
             new LoginFrame();
@@ -92,6 +96,7 @@ class AdminDashboard extends JFrame {
         panel.add(updateProduct);
         panel.add(viewProducts);
         panel.add(viewOrders);
+        panel.add(updateOrderStatus);
         panel.add(reports);
         panel.add(logout);
        
@@ -203,8 +208,9 @@ class UpdateDeleteProductFrame extends JFrame {
         panel.add(productQuantityField);
 
         JButton updateButton = new JButton("Update");
-        JButton deleteButton = new JButton("Delete");
         panel.add(updateButton);
+
+        JButton deleteButton = new JButton("Delete");
         panel.add(deleteButton);
 
         searchButton.addActionListener(e -> {
@@ -311,6 +317,91 @@ class ViewOrdersFrame extends JFrame {
     }
 }
 
+class UpdateOrderStatusFrame extends JFrame {
+
+    private JTextField orderIdField, customerField, totaField;
+    private JComboBox<String> statusDropdown;
+    private JButton updateButton, searchButton;
+
+    private Order currentOrder = null;
+
+
+    public UpdateOrderStatusFrame() {
+        setTitle("Update Order Status");
+        setSize(400, 250);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        panel.add(new JLabel("Order ID:"));
+        JTextField orderIdField = new JTextField();
+        panel.add(orderIdField);
+
+        panel.add(new Label("Search"));
+        JButton searchButton = new JButton("Search");
+        panel.add(searchButton);
+
+        panel.add(new JLabel("Customer:"));
+        JTextField customerField = new JTextField();
+        customerField.setEditable(false);
+        panel.add(customerField);
+
+        panel.add(new JLabel("Total Amount:"));
+        JTextField totalField = new JTextField();
+        totalField.setEditable(false);
+        panel.add(totalField);
+
+        panel.add(new JLabel("New Status:"));
+        statusDropdown = new JComboBox<>(new String[]{"Pending", "Shipped", "Delivered", "Cancelled"});
+        panel.add(statusDropdown);  
+
+
+
+        JButton updateButton = new JButton("Update");
+        panel.add(updateButton);
+
+        panel.add(new JLabel("")); // Placeholder
+
+        searchButton.addActionListener(e -> searchOrder());
+        updateButton.addActionListener(e -> updateStatus());
+
+        add(panel);
+        setVisible(true);
+    }
+
+    private void searchOrder() {
+        String orderId = orderIdField.getText();
+        try {
+            int id = Integer.parseInt(orderId);
+            currentOrder = EStore.orderInventory.getOrderById(id);
+            if (currentOrder == null) {
+                JOptionPane.showMessageDialog(this, "Order not found", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                customerField.setText(currentOrder.getCustomerName());
+                totaField.setText(String.valueOf(currentOrder.getTotalAmount()));   
+                statusDropdown.setSelectedItem(currentOrder.getStatus());
+            }
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Order ID", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void updateStatus() {
+        if (currentOrder == null) {
+            JOptionPane.showMessageDialog(this, "No order selected", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        currentOrder.getStatus();
+        JOptionPane.showMessageDialog(this, "Order status updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        dispose();
+    }
+}   
+
+
 class ReportsFrame extends JFrame {
     public ReportsFrame() {
         setTitle("Reports");
@@ -391,8 +482,38 @@ class BrowseProductsFrame extends JFrame {
 
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        add(scrollPane);
 
+        JButton addToCartButton = new JButton("Add to Cart");
+        addToCartButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                String productId = (String) table.getValueAt(selectedRow, 0);
+                Product selectedProduct = EStore.productStorage.getProductById(productId);
+                if (selectedProduct != null) {
+                    String quantityStr = JOptionPane.showInputDialog(this, "Enter quantity to add to cart:");
+                    try {
+                        int quantity = Integer.parseInt(quantityStr);
+                        if (quantity > 0 && quantity <= selectedProduct.getQuantity()) {
+                            EStore.currentCart.addProduct(selectedProduct, quantity);
+                            JOptionPane.showMessageDialog(this, "Product added to cart!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "No product selected", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }); 
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(addToCartButton);
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+        
         setVisible(true);
     }
 }
@@ -460,8 +581,39 @@ class ViewCartFrame extends JFrame {
 
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        add(scrollPane);
+       
+        JButton removeButton = new JButton("Remove Selected Item");
+        JButton checkoutButton = new JButton("Checkout");
 
+        removeButton.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                String productId = (String) table.getValueAt(selectedRow, 0);
+                cart.removeProduct(productId);
+                dispose();
+                new ViewCartFrame();
+            } else {
+                JOptionPane.showMessageDialog(this, "No item selected", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }); 
+
+        checkoutButton.addActionListener(e -> {
+            if (cart.getItems().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Cart is empty", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Order newOrder = EStore.orderInventory.createOrder(cart);
+            JOptionPane.showMessageDialog(this, "Order placed successfully! Order ID: " + newOrder.getOrderId(), "Success", JOptionPane.INFORMATION_MESSAGE);
+            EStore.currentCart = new Cart(1, "customer");
+            dispose();
+        });
+       
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(removeButton);
+        buttonPanel.add(checkoutButton);
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
         setVisible(true);
     }
 }

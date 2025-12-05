@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Cart {
     }
 
     // Add item with stock validation
-    public void addItem(Product product, int quantity) {
+    public void addProduct(Product product, int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be greater than zero.");
         }
@@ -36,7 +37,7 @@ public class Cart {
         }
 
         for (CartItem item : items) {
-            if (item.getProduct().getId() == product.getId()) {
+            if (item.getProduct().getId().equals(product.getId())) {
                 item.setQuantity(item.getQuantity() + quantity);
                 System.out.println("Updated quantity for product: " + product.getName() + " to " + item.getQuantity());
                 return;
@@ -44,21 +45,30 @@ public class Cart {
         }
 
         items.add(new CartItem(product, quantity));
+        product.setQuantity(product.getQuantity() - quantity);
         System.out.println("Added product: " + product.getName() + " with quantity " + quantity + " to cart.");
     }
 
     // Remove item by product ID
-    public void removeItem(int productId) {
-        items.removeIf(item -> item.getProduct().getId().equals(productId));
-        System.out.println("Removed product with ID: " + productId + " from cart.");
+    public void removeProduct(String productId) {
+        Iterator<CartItem> iterator = items.iterator();
+        while (iterator.hasNext()) {
+            CartItem item = iterator.next();
+            if (item.getProduct().getId().equals(productId)) {
+                iterator.remove();
+                item.getProduct().setQuantity(item.getProduct().getQuantity() + item.getQuantity());
+                System.out.println("Removed product: " + item.getProduct().getName() + " from cart.");
+                return;
+            }
+        }
     }
 
     // Update item quantity
-    public void updateItemQuantity(int productId, int newQuantity) {
+    public void updateItemQuantity(String productId, int newQuantity) {
         for (CartItem item : items) {
             if (item.getProduct().getId().equals(productId)) {
                 if (newQuantity <= 0) {
-                    removeItem(productId);
+                    removeProduct(productId);
                 } else if (newQuantity > item.getProduct().getQuantity()) {
                     System.out.println("Not enough stock for " + item.getProduct().getName());
                 } else {

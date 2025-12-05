@@ -6,6 +6,8 @@ public class Product {
     private double price;
     private int quantity;
 
+    private List<Integer> ratings = new ArrayList<>();
+
     public Product(String id, String name, String category, double price, int quantity) {
         this.id = id;
         this.name = name;
@@ -13,6 +15,25 @@ public class Product {
         this.price = price;
         this.quantity = quantity;
     }
+
+
+     public void addRating(int rating) {
+        if (rating < 1 || rating > 5)
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        ratings.add(rating);
+    }
+
+    public double getAverageRating() {
+        if (ratings.isEmpty()) return 0.0;
+        int sum = 0;
+        for (int r : ratings) sum += r;
+        return (double) sum / ratings.size();
+    }
+
+    public List<Integer> getRatings() {
+        return ratings;
+    }
+
 
     public String getId() { return id; }
     public String getName() { return name; }
@@ -32,14 +53,5 @@ public class Product {
                 ", quantity=" + quantity + '}';
     }
 
-    public int getAvailableQuantity() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAvailableQuantity'");
-    }
-
-    public void setAvailableQuantity(int newQuantity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setAvailableQuantity'");
-    }
 }
 

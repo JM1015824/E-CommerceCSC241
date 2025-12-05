@@ -128,4 +128,17 @@ public class OrderInventory {
             System.out.println("Order ID " + orderId + " not found.");
         }
     }
+
+    public Order createOrder(Cart cart) {
+        if (cart == null) {
+            throw new IllegalArgumentException("Cart cannot be null.");
+        }
+
+        List<CartItem> items = cart.getItems();
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Cart is empty. Cannot create order.");
+        }   
+
+        return placeOrder(cart.getCustomerName(), cart.getItems());
+    }
 }
