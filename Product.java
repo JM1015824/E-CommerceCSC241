@@ -1,10 +1,14 @@
 import java.util.*;
+
 public class Product {
+
     private String id;
     private String name;
     private String category;
     private double price;
     private int quantity;
+
+    private List<Integer> ratings = new ArrayList<>();
 
     public Product(String id, String name, String category, double price, int quantity) {
         this.id = id;
@@ -12,6 +16,23 @@ public class Product {
         this.category = category;
         this.price = price;
         this.quantity = quantity;
+    }
+
+    public void addRating(int rating) {
+        if (rating < 1 || rating > 5)
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        ratings.add(rating);
+    }
+
+    public double getAverageRating() {
+        if (ratings.isEmpty()) return 0.0;
+        int sum = 0;
+        for (int r : ratings) sum += r;
+        return (double) sum / ratings.size();
+    }
+
+    public List<Integer> getRatings() {
+        return ratings;
     }
 
     public String getId() { return id; }
@@ -25,21 +46,25 @@ public class Product {
     public void setPrice(double price) { this.price = price; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    @Override
-    public String toString() {
-        return "Product{" + "id='" + id + '\'' + ", name='" + name + '\'' +
-                ", category='" + category + '\'' + ", price=" + price +
-                ", quantity=" + quantity + '}';
-    }
-
     public int getAvailableQuantity() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAvailableQuantity'");
+        return quantity; 
     }
 
     public void setAvailableQuantity(int newQuantity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setAvailableQuantity'");
+        this.quantity = newQuantity; 
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", category='" + category + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", avgRating=" + String.format("%.1f", getAverageRating()) +
+                '}';
     }
 }
+
 
