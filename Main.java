@@ -1,5 +1,14 @@
 import javax.swing.*;
 
+import GUI.LoginFrame;
+import model.Cart;
+import model.Order;
+import model.OrderInventory;
+import model.Product;
+import model.ProductStorage;
+import model.User;
+import model.UserStorage;
+
 public class Main {
     public static void main(String[] args) {
         UserStorage userStorage = new UserStorage();
@@ -54,7 +63,7 @@ public class Main {
         orderInventory.updateOrderStatus(1001, Order.Status.SHIPPED);
         
         // Launch the login GUI
-        SwingUtilities.invokeLater(() -> new LoginFrame());
+        SwingUtilities.invokeLater(() -> new LoginFrame(userStorage));
 
     }
 }
