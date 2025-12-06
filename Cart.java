@@ -122,6 +122,33 @@ public class Cart {
         }
         return getTotalAmount();
     }
+     public Order checkout() {
+        if (items.isEmpty()) {
+            throw new IllegalStateException("Cart is empty. Cannot checkout.");
+        }
+
+        // Get a order ID (timestamp-based)
+        int orderId = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+
+        double totalAmount = getTotalAmount();
+
+        // Reduce stock in product storage
+        for (CartItem item : items) {
+            Product p = item.getProduct();
+            p.setQuantity(p.getQuantity() - item.getQuantity());
+        }
+
+        // Create order
+        Order order = new Order(orderId, customerName, new ArrayList<>(items), totalAmount);
+
+        // Add to global order inventory
+        EStore.orderInventory.addOrder(order);
+
+        // Clear cart after checkout
+        clearCart();
+
+        return order;
+    }
     
     @Override
     public String toString() {
@@ -132,4 +159,5 @@ public class Cart {
                 '}';
     }
 }
+
 
