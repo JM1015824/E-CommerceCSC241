@@ -1,4 +1,3 @@
-package model;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -160,4 +159,5 @@ public class Cart {
                 '}';
     }
 }
+
 
