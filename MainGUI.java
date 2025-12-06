@@ -2,6 +2,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 
 public class MainGUI{
     public static void main(String[] args) {
@@ -103,18 +106,14 @@ class AdminDashboard extends JFrame {
         JButton updateProduct = new JButton("Update/Delete Product");
         JButton viewProducts = new JButton("View All Products");
         JButton viewOrders = new JButton("View Orders");
-        JButton updateOrderStatus = new JButton("Update Order Status");
         JButton reports = new JButton("Reports");
         JButton logout = new JButton("Logout");
-
 
         addProduct.addActionListener(e -> new AddProductFrame());
         updateProduct.addActionListener(e -> new UpdateDeleteProductFrame());
         viewProducts.addActionListener(e -> new ViewProductsFrame());
         viewOrders.addActionListener(e -> new ViewOrdersFrame());
-        updateOrderStatus.addActionListener(e -> new UpdateOrderStatusFrame());
         reports.addActionListener(e -> new ReportsFrame());
-        
         logout.addActionListener(e -> {
             dispose();
             new LoginFrame(userStorage);
@@ -125,7 +124,6 @@ class AdminDashboard extends JFrame {
         panel.add(updateProduct);
         panel.add(viewProducts);
         panel.add(viewOrders);
-        panel.add(updateOrderStatus);
         panel.add(reports);
         panel.add(logout);
 
@@ -237,9 +235,8 @@ class UpdateDeleteProductFrame extends JFrame {
         panel.add(productQuantityField);
 
         JButton updateButton = new JButton("Update");
-        panel.add(updateButton);
-
         JButton deleteButton = new JButton("Delete");
+        panel.add(updateButton);
         panel.add(deleteButton);
 
         searchButton.addActionListener(e -> {
@@ -346,106 +343,99 @@ class ViewOrdersFrame extends JFrame {
     }
 }
 
-class UpdateOrderStatusFrame extends JFrame {
+class ReportsFrame extends JFrame {
+    private JTable reportTable;
+    private JButton updateStatusButton;
+    private JTextField orderIdField;
+    private JComboBox<String> statusCombo;
 
-    private JTextField orderIdField, customerField, totaField;
-    private JComboBox<String> statusDropdown;
-    private JButton updateButton, searchButton;
-
-    private Order currentOrder = null;
-
-
-    public UpdateOrderStatusFrame() {
-        setTitle("Update Order Status");
-        setSize(400, 250);
+    public ReportsFrame() {
+        setTitle("Reports");
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel panel = new JPanel(new BorderLayout());
 
-        panel.add(new JLabel("Order ID:"));
-        JTextField orderIdField = new JTextField();
-        panel.add(orderIdField);
+        // Build report data
+        String[] columnNames = {"Order ID", "Customer", "Total Amount", "Status"};
+        List<Order> orders = EStore.orderInventory.getOrders();
+        Object[][] data = new Object[orders.size()][4];
 
-        panel.add(new Label("Search"));
-        JButton searchButton = new JButton("Search");
-        panel.add(searchButton);
+        double totalRevenue = 0;
+        Map<String, Integer> productFrequency = new HashMap<>();
 
-        panel.add(new JLabel("Customer:"));
-        JTextField customerField = new JTextField();
-        customerField.setEditable(false);
-        panel.add(customerField);
+        for (int i = 0; i < orders.size(); i++) {
+            Order o = orders.get(i);
+            data[i][0] = o.getOrderId();
+            data[i][1] = o.getCustomerName();
+            data[i][2] = o.getTotalAmount();
+            data[i][3] = o.getStatus();
 
-        panel.add(new JLabel("Total Amount:"));
-        JTextField totalField = new JTextField();
-        totalField.setEditable(false);
-        panel.add(totalField);
+            totalRevenue += o.getTotalAmount();
 
-        panel.add(new JLabel("New Status:"));
-        statusDropdown = new JComboBox<>(new String[]{"Pending", "Shipped", "Delivered", "Cancelled"});
-        panel.add(statusDropdown);  
+            // Count product frequency
+            for (CartItem item : o.getItems()) {
+                productFrequency.put(item.getProduct().getName(),
+                        productFrequency.getOrDefault(item.getProduct().getName(), 0) + item.getQuantity());
+            }
+        }
 
+        reportTable = new JTable(data, columnNames);
+        panel.add(new JScrollPane(reportTable), BorderLayout.CENTER);
 
+        // Summary area
+        JTextArea summary = new JTextArea();
+        summary.setEditable(false);
+        summary.append("Total Orders: " + orders.size() + "\n");
+        summary.append("Total Revenue: $" + totalRevenue + "\n");
 
-        JButton updateButton = new JButton("Update");
-        panel.add(updateButton);
+        // Find most frequently ordered product
+        String topProduct = productFrequency.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey).orElse("None");
+        summary.append("Most Frequently Ordered Product: " + topProduct + "\n");
 
-        panel.add(new JLabel("")); // Placeholder
+        // Out-of-stock products
+        summary.append("Out of Stock Products:\n");
+        for (Product p : EStore.productStorage.getAllProducts()) {
+            if (p.getQuantity() == 0) {
+                summary.append(" - " + p.getName() + "\n");
+            }
+        }
 
-        searchButton.addActionListener(e -> searchOrder());
-        updateButton.addActionListener(e -> updateStatus());
+        panel.add(summary, BorderLayout.SOUTH);
+
+        // Status update controls
+        JPanel updatePanel = new JPanel(new FlowLayout());
+        orderIdField = new JTextField(5);
+        statusCombo = new JComboBox<>(new String[]{"PENDING", "PROCESSING", "SHIPPED", "DELIVERED"});
+        updateStatusButton = new JButton("Update Status");
+
+        updateStatusButton.addActionListener(e -> {
+            try {
+                int orderId = Integer.parseInt(orderIdField.getText());
+                String newStatus = (String) statusCombo.getSelectedItem();
+                EStore.orderInventory.updateOrderStatus(orderId, Order.Status.valueOf(newStatus));
+                JOptionPane.showMessageDialog(this, "Order status updated!");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Invalid Order ID", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        updatePanel.add(new JLabel("Order ID:"));
+        updatePanel.add(orderIdField);
+        updatePanel.add(new JLabel("New Status:"));
+        updatePanel.add(statusCombo);
+        updatePanel.add(updateStatusButton);
+
+        panel.add(updatePanel, BorderLayout.NORTH);
 
         add(panel);
         setVisible(true);
     }
-
-    private void searchOrder() {
-        String orderId = orderIdField.getText();
-        try {
-            int id = Integer.parseInt(orderId);
-            currentOrder = EStore.orderInventory.getOrderById(id);
-            if (currentOrder == null) {
-                JOptionPane.showMessageDialog(this, "Order not found", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                customerField.setText(currentOrder.getCustomerName());
-                totaField.setText(String.valueOf(currentOrder.getTotalAmount()));   
-                statusDropdown.setSelectedItem(currentOrder.getStatus());
-            }
-            
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid Order ID", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void updateStatus() {
-        if (currentOrder == null) {
-            JOptionPane.showMessageDialog(this, "No order selected", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        currentOrder.getStatus();
-        JOptionPane.showMessageDialog(this, "Order status updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-        dispose();
-    }
-}   
-
-
-class ReportsFrame extends JFrame {
-    public ReportsFrame() {
-        setTitle("Reports");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        JTextArea reportArea = new JTextArea();
-        reportArea.setText("Sales Report:\n\nTotal Sales: $10,000\nTotal Orders: 150\nTop Selling Product: Laptop");
-        reportArea.setEditable(false);
-        add(new JScrollPane(reportArea));
-
-        setVisible(true);
-    }
 }
+
 
 
 class CustomerDashboard extends JFrame {
@@ -455,13 +445,12 @@ class CustomerDashboard extends JFrame {
         this.userStorage = userStorage;
 
         setTitle("Customer Dashboard");
-        setSize(400, 300);
+        setSize(400, 350); // slightly taller
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 1, 15, 15));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel mainPanel = new JPanel(new GridLayout(6, 1, 15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JButton browseProducts = new JButton("Browse Products");
         JButton searchProducts = new JButton("Search Products");
@@ -480,23 +469,33 @@ class CustomerDashboard extends JFrame {
             new LoginFrame(userStorage);
         });
 
-        panel.add(browseProducts);
-        panel.add(searchProducts);
-        panel.add(viewCart);
-        panel.add(orderHistory);
-        panel.add(trackOrders);
-        panel.add(logout);
+        mainPanel.add(browseProducts);
+        mainPanel.add(searchProducts);
+        mainPanel.add(viewCart);
+        mainPanel.add(orderHistory);
+        mainPanel.add(trackOrders);
+        mainPanel.add(logout);
 
-        add(panel);
+        // Checkout panel at the bottom
+        JPanel checkoutPanel = new JPanel();
+        JButton checkoutButton = new JButton("Checkout");
+        checkoutButton.addActionListener(e -> new CheckoutFrame());
+        checkoutPanel.add(checkoutButton);
+
+        // Use BorderLayout to place main buttons in center and checkout at bottom
+        setLayout(new BorderLayout());
+        add(mainPanel, BorderLayout.CENTER);
+        add(checkoutPanel, BorderLayout.SOUTH);
+
         setVisible(true);
-
     }
 }
+
 
 class BrowseProductsFrame extends JFrame {
     public BrowseProductsFrame() {
         setTitle("Browse Products");
-        setSize(500, 400);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -518,35 +517,29 @@ class BrowseProductsFrame extends JFrame {
 
         JButton addToCartButton = new JButton("Add to Cart");
         addToCartButton.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                String productId = (String) table.getValueAt(selectedRow, 0);
-                Product selectedProduct = EStore.productStorage.getProductById(productId);
-                if (selectedProduct != null) {
-                    String quantityStr = JOptionPane.showInputDialog(this, "Enter quantity to add to cart:");
+            int row = table.getSelectedRow();
+            if (row >= 0) {
+                String productId = (String) table.getValueAt(row, 0);
+                Product selected = EStore.productStorage.getProductById(productId);
+                if (selected != null) {
+                    String qtyStr = JOptionPane.showInputDialog(this, "Enter quantity:");
                     try {
-                        int quantity = Integer.parseInt(quantityStr);
-                        if (quantity > 0 && quantity <= selectedProduct.getQuantity()) {
-                            EStore.currentCart.addProduct(selectedProduct, quantity);
-                            JOptionPane.showMessageDialog(this, "Product added to cart!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    } catch (NumberFormatException ex) {
-                        JOptionPane.showMessageDialog(this, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
+                        int qty = Integer.parseInt(qtyStr);
+                        EStore.currentCart.addItem(selected, qty);
+                        JOptionPane.showMessageDialog(this, "Added to cart!");
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid quantity", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "No product selected", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }); 
+        });
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(addToCartButton);
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(addToCartButton);
 
         add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-        
+        add(bottomPanel, BorderLayout.SOUTH);
+
         setVisible(true);
     }
 }
@@ -614,39 +607,8 @@ class ViewCartFrame extends JFrame {
 
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-       
-        JButton removeButton = new JButton("Remove Selected Item");
-        JButton checkoutButton = new JButton("Checkout");
+        add(scrollPane);
 
-        removeButton.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                String productId = (String) table.getValueAt(selectedRow, 0);
-                cart.removeProduct(productId);
-                dispose();
-                new ViewCartFrame();
-            } else {
-                JOptionPane.showMessageDialog(this, "No item selected", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }); 
-
-        checkoutButton.addActionListener(e -> {
-            if (cart.getItems().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Cart is empty", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            Order newOrder = EStore.orderInventory.createOrder(cart);
-            JOptionPane.showMessageDialog(this, "Order placed successfully! Order ID: " + newOrder.getOrderId(), "Success", JOptionPane.INFORMATION_MESSAGE);
-            EStore.currentCart = new Cart(1, "customer");
-            dispose();
-        });
-       
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(removeButton);
-        buttonPanel.add(checkoutButton);
-
-        add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
         setVisible(true);
     }
 }
@@ -719,6 +681,55 @@ class TrackOrdersFrame extends JFrame {
         });
 
         add(panel);
+        setVisible(true);
+    }
+}
+class CheckoutFrame extends JFrame {
+    public CheckoutFrame() {
+        setTitle("Checkout");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        Cart cart = EStore.currentCart;
+        if (cart == null || cart.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Your cart is empty!", "Info", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+            return;
+        }
+
+        String[] columnNames = {"Product ID", "Name", "Quantity", "Price", "Total"};
+        List<CartItem> items = cart.getItems();
+        Object[][] data = new Object[items.size()][5];
+
+        for (int i = 0; i < items.size(); i++) {
+            CartItem item = items.get(i);
+            data[i][0] = item.getProduct().getId();
+            data[i][1] = item.getProduct().getName();
+            data[i][2] = item.getQuantity();
+            data[i][3] = item.getProduct().getPrice();
+            data[i][4] = item.getTotalPrice();
+        }
+
+        JTable table = new JTable(data, columnNames);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        JButton confirmButton = new JButton("Confirm Order");
+        confirmButton.addActionListener(e -> {
+            Order order = cart.checkout(); // uses the checkout() method we added earlier
+            JOptionPane.showMessageDialog(this,
+                    "Order placed!\nOrder ID: " + order.getOrderId() +
+                            "\nTotal: $" + order.getTotalAmount(),
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        });
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(confirmButton);
+
+        add(scrollPane, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
         setVisible(true);
     }
 }
