@@ -1,13 +1,7 @@
-package GUI;
 
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
-
-import model.Cart;
-import model.CartItem;
-import model.EStore;
-import model.Order;
 
 class CheckoutFrame extends JFrame {
     private JTextField areaCodeField;
