@@ -1,10 +1,8 @@
 
 
-
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
-
 
 public class AddProductFrame extends JFrame {
         private JTextField productIdField, productNameField, productPriceField, productCategoryField, productQuantityField;

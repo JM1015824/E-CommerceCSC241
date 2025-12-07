@@ -22,11 +22,26 @@ public class UserStorage {
     }
 
 
+
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
 
     public void removeUser(String id) {
         users.remove(id);
+    }
+
+    public User findUserByName(String username) {
+        if(username == null){
+            return null;
+        }
+
+        for(User user : users.values()){
+            if (user.getName().equalsIgnoreCase(username)){
+                return user;
+            }
+        }
+
+        return null;
     }
 }

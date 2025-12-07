@@ -1,9 +1,6 @@
 
+
 import javax.swing.*;
-
-import model.User;
-import model.UserStorage;
-
 import java.awt.*;
 
 public class RegisterGUI extends JFrame {
