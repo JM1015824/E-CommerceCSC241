@@ -1,11 +1,8 @@
-package GUI;
+
 
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
-
-import model.EStore;
-import model.Order;
 
 public class OrderHistoryFrame extends JFrame{
         public OrderHistoryFrame() {

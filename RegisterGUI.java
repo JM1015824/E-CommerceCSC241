@@ -1,4 +1,4 @@
-package GUI;
+
 import javax.swing.*;
 
 import model.User;

@@ -1,10 +1,8 @@
-package GUI;
+
 
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
-
-import model.UserStorage;
 
 
 public class AdminDashboard extends JFrame {

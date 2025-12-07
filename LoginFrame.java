@@ -1,13 +1,8 @@
-package GUI;
 
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
-import model.Cart;
-import model.EStore;
-import model.User;
-import model.UserStorage;
 
 public class LoginFrame extends JFrame{
     private JTextField usernameField;

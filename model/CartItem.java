@@ -1,4 +1,5 @@
-package model;
+
+
 public class CartItem {
     private final Product product;
     private int quantity;

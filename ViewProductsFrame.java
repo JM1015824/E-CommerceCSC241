@@ -1,11 +1,9 @@
-package GUI;
+
 
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
-import model.EStore;
-import model.Product;
 
 public class ViewProductsFrame extends JFrame {
         public ViewProductsFrame() {
