@@ -12,7 +12,7 @@ public class BrowseProductsFrame extends JFrame{
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        String[] columnNames = {"Product ID", "Name", "Price", "Category", "Quantity"};
+        String[] columnNames = {"Product ID", "Name", "Price", "Category", "Quantity", "Average Rating"};
         List<Product> products = EStore.productStorage.getAllProducts();
         Object[][] data = new Object[products.size()][5];
 
@@ -23,12 +23,15 @@ public class BrowseProductsFrame extends JFrame{
             data[i][2] = p.getPrice();
             data[i][3] = p.getCategory();
             data[i][4] = p.getQuantity();
+            data[i][5] = String.format("%.1f", p.getAverageRating();
         }
 
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
 
         JButton addToCartButton = new JButton("Add to Cart");
+        JButton rateProductButton = new Jbutton("Rate Product");
+                
         addToCartButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
@@ -53,8 +56,41 @@ public class BrowseProductsFrame extends JFrame{
             }
         }); 
 
+        rateProductButton.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a product first.");
+                return;
+            }
+
+            String productId = table.getValueAt(row, 0).toString();
+            Product p = EStore.productStorage.getProductById(productId);
+
+            if (p == null) {
+                JOptionPane.showMessageDialog(this, "Error: Product not found.");
+                return;
+            }
+
+            String ratingStr = JOptionPane.showInputDialog("Enter rating (1–5):");
+
+            try {
+                int rating = Integer.parseInt(ratingStr);
+                p.addRating(rating); 
+
+                JOptionPane.showMessageDialog(this,
+                    "Rating saved!\nNew Avg Rating: " + String.format("%.1f", p.getAverageRating()));
+
+                dispose();
+                new BrowseProductsFrame();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Invalid rating.");
+            }
+        });
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addToCartButton);
+        buttonPanel.add(rateProductButton);
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
