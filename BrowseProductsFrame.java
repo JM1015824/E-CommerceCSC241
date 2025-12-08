@@ -14,7 +14,7 @@ public class BrowseProductsFrame extends JFrame{
 
         String[] columnNames = {"Product ID", "Name", "Price", "Category", "Quantity", "Average Rating"};
         List<Product> products = EStore.productStorage.getAllProducts();
-        Object[][] data = new Object[products.size()][5];
+        Object[][] data = new Object[products.size()][6];
 
         for (int i = 0; i < products.size(); i++) {
             Product p = products.get(i);
@@ -23,7 +23,7 @@ public class BrowseProductsFrame extends JFrame{
             data[i][2] = p.getPrice();
             data[i][3] = p.getCategory();
             data[i][4] = p.getQuantity();
-            data[i][5] = String.format("%.1f", p.getAverageRating();
+            data[i][5] = String.format("%.1f", p.getAverageRating());
         }
 
         JTable table = new JTable(data, columnNames);
