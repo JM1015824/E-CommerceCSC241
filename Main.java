@@ -21,6 +21,8 @@ public class Main {
     cal.add(Calendar.DATE, 30);
     CouponStorage.addCoupon(new Coupon("FREE",100, cal.getTime()));
     CouponStorage.addCoupon(new Coupon("HALF",100, cal.getTime()));
+    CouponStorage.addCoupon(new Coupon("SAVE10", 10, cal.getTime()));  
+    CouponStorage.addCoupon(new Coupon("SAVE20", 20, cal.getTime()));
 
     // List all users
     System.out.println("=== All Users ===");
