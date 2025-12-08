@@ -30,7 +30,7 @@ public class BrowseProductsFrame extends JFrame{
         JScrollPane scrollPane = new JScrollPane(table);
 
         JButton addToCartButton = new JButton("Add to Cart");
-        JButton rateProductButton = new Jbutton("Rate Product");
+        JButton rateProductButton = new JButton("Rate Product");
                 
         addToCartButton.addActionListener(e -> {
             int selectedRow = table.getSelectedRow();
