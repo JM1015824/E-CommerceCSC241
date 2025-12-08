@@ -1,6 +1,3 @@
-
-
-
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
@@ -9,7 +6,7 @@ import javax.swing.*;
 public class ViewCartFrame extends JFrame{
         public ViewCartFrame() {
         setTitle("View Cart");
-        setSize(500, 400);
+        setSize(500, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -31,6 +28,7 @@ public class ViewCartFrame extends JFrame{
         JScrollPane scrollPane = new JScrollPane(table);
        
         JButton removeButton = new JButton("Remove Selected Item");
+        JButton couponButton = new JButton("Apply coupon");
         JButton checkoutButton = new JButton("Checkout");
 
         removeButton.addActionListener(e -> {
@@ -44,6 +42,23 @@ public class ViewCartFrame extends JFrame{
                 JOptionPane.showMessageDialog(this, "No item selected", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }); 
+        
+         couponButton.addActionListener(e -> {
+            String code = JOptionPane.showInputDialog("Enter coupon code:");
+            if (code == null || code.isEmpty()) return;
+
+            Coupon coupon = CouponStorage.find(code);
+
+            if (coupon == null) {
+                JOptionPane.showMessageDialog(this, "Invalid or expired coupon.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            double discountedTotal = cart.applyCoupon(coupon);
+
+            JOptionPane.showMessageDialog(this, "Coupon applied!\nNew total = $" + discountedTotal,"Success", JOptionPane.INFORMATION_MESSAGE);
+        });
+
 
         checkoutButton.addActionListener(e -> {
             if (cart.getItems().isEmpty()) {
@@ -58,10 +73,12 @@ public class ViewCartFrame extends JFrame{
        
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(removeButton);
+        buttonPanel.add(couponButton);
         buttonPanel.add(checkoutButton);
 
         add(scrollPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+                
         setVisible(true);
     }
 }
