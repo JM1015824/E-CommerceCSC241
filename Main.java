@@ -6,6 +6,9 @@ public class Main {
     public static void main(String[] args) {
     UserStorage userStorage = new UserStorage();
     ProductStorage productStorage = new ProductStorage();
+    OrderInventory orderInventory = new OrderInventory();
+
+    EStore.orderInventory = orderInventory;
 
     // Add sample products
     EStore.productStorage.addProduct(new Product("P001", "Smartphone", "Electronics", 699.99, 15));
@@ -36,6 +39,6 @@ public class Main {
         System.out.println(product);
     }
     // Launch the login GUI
-    SwingUtilities.invokeLater(() -> new LoginFrame(userStorage));
+    SwingUtilities.invokeLater(() -> new LoginFrame(userStorage, EStore.orderInventory));
     }
 }
