@@ -8,14 +8,17 @@ import javax.swing.*;
 
 public class UpdateOrderStatusFrame extends JFrame{
     
-    private JTextField orderIdField, customerField, totaField;
+    private JTextField orderIdField, customerField, totalField;
     private JComboBox<String> statusDropdown;
     private JButton updateButton, searchButton;
 
     private Order currentOrder = null;
+    private OrderInventory orderInventory;
 
 
-    public UpdateOrderStatusFrame() {
+    public UpdateOrderStatusFrame(OrderInventory orderInventory) {
+        this.orderInventory = orderInventory;
+
         setTitle("Update Order Status");
         setSize(400, 250);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -25,25 +28,25 @@ public class UpdateOrderStatusFrame extends JFrame{
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panel.add(new JLabel("Order ID:"));
-        JTextField orderIdField = new JTextField();
+        orderIdField = new JTextField();
         panel.add(orderIdField);
 
         panel.add(new Label("Search"));
-        JButton searchButton = new JButton("Search");
+        searchButton = new JButton("Search");
         panel.add(searchButton);
 
         panel.add(new JLabel("Customer:"));
-        JTextField customerField = new JTextField();
+        customerField = new JTextField();
         customerField.setEditable(false);
         panel.add(customerField);
 
         panel.add(new JLabel("Total Amount:"));
-        JTextField totalField = new JTextField();
+        totalField = new JTextField();
         totalField.setEditable(false);
         panel.add(totalField);
 
         panel.add(new JLabel("New Status:"));
-        statusDropdown = new JComboBox<>(new String[]{"Pending", "Shipped", "Delivered", "Cancelled"});
+        statusDropdown = new JComboBox<>(new String[]{"PROCESSED", "SHIPPED", "DELIVERED"});
         panel.add(statusDropdown);  
 
 
@@ -61,16 +64,16 @@ public class UpdateOrderStatusFrame extends JFrame{
     }
 
     private void searchOrder() {
-        String orderId = orderIdField.getText();
         try {
-            int id = Integer.parseInt(orderId);
+            int id = Integer.parseInt(orderIdField.getText());
             currentOrder = EStore.orderInventory.getOrderById(id);
+
             if (currentOrder == null) {
                 JOptionPane.showMessageDialog(this, "Order not found", "Error", JOptionPane.ERROR_MESSAGE);
             } else {
                 customerField.setText(currentOrder.getCustomerName());
-                totaField.setText(String.valueOf(currentOrder.getTotalAmount()));   
-                statusDropdown.setSelectedItem(currentOrder.getStatus());
+                totalField.setText(String.valueOf(currentOrder.getTotalAmount()));   
+                statusDropdown.setSelectedItem(currentOrder.getStatus().name());
             }
             
         } catch (NumberFormatException e) {
@@ -83,7 +86,14 @@ public class UpdateOrderStatusFrame extends JFrame{
             JOptionPane.showMessageDialog(this, "No order selected", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        currentOrder.getStatus();
+
+        String selected = (String) statusDropdown.getSelectedItem();
+
+        Order.Status newStatus = Order.Status.valueOf(selected.toUpperCase());
+
+        currentOrder.setStatus(newStatus);
+
+
         JOptionPane.showMessageDialog(this, "Order status updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
         dispose();
