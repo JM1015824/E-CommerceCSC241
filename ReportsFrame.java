@@ -1,5 +1,6 @@
-import java.util.*;
+
 import java.awt.*;
+import java.util.*;
 import java.util.List;
 import javax.swing.*;
 
@@ -69,7 +70,7 @@ class ReportsFrame extends JFrame {
         // Status update controls
         JPanel updatePanel = new JPanel(new FlowLayout());
         orderIdField = new JTextField(5);
-        statusCombo = new JComboBox<>(new String[]{"PENDING", "PROCESSING", "SHIPPED", "DELIVERED"});
+        statusCombo = new JComboBox<>(new String[]{"PROCESSING", "SHIPPED", "DELIVERED"});
         updateStatusButton = new JButton("Update Status");
 
         updateStatusButton.addActionListener(e -> {
