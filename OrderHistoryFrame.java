@@ -1,20 +1,17 @@
-
-
-
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
 
 public class OrderHistoryFrame extends JFrame{
-        public OrderHistoryFrame() {
+        public OrderHistoryFrame(String customerName) {
         setTitle("Order History");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
 
-        List<Order> orders = EStore.orderInventory.getOrdersByCustomer("customer");
+        List<Order> orders = EStore.orderInventory.getOrdersByCustomer(customerName);
         String[] columnNames = {"Order ID", "Total Amount", "Status"};
         Object[][] data = new Object[orders.size()][3];
 
