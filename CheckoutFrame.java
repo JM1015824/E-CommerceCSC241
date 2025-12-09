@@ -8,8 +8,11 @@ class CheckoutFrame extends JFrame {
     private JTextField areaCodeField;
     private JTextField couponField;
     private JLabel totalLabel;
+    private String customerName;
 
-    public CheckoutFrame() {
+    public CheckoutFrame(String customerName) {
+        this.customerName = customerName;
+
         setTitle("Checkout");
         setSize(600, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -70,8 +73,11 @@ class CheckoutFrame extends JFrame {
                     finalTotal = Math.round(finalTotal * 100.0) / 100.0;
                 }
 
+                Order order = EStore.orderInventory.placeOrder(customerName, cart.getItems());
+
+                cart.clearCart();
+
                 // Checkout
-                Order order = cart.checkout();
                 JOptionPane.showMessageDialog(this,
                         "Order placed!\nOrder ID: " + order.getOrderId() +
                                 "\nSubtotal: $" + subtotal +
