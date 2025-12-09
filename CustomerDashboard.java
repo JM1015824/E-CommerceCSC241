@@ -1,3 +1,5 @@
+
+
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
@@ -34,7 +36,7 @@ public class CustomerDashboard extends JFrame{
         trackOrders.addActionListener(e -> new TrackOrdersFrame(customerName));
         logout.addActionListener(e -> {
             dispose();
-            new LoginFrame(userStorage);
+            new LoginFrame(userStorage, EStore.orderInventory);
         });
 
         panel.add(browseProducts);
