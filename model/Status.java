@@ -1,9 +1,5 @@
-
-
 public enum Status {
-    PENDING,
+    PROCESSED,
     SHIPPED,
-    DELIVERED,
-    CANCELLED
-
+    DELIVERED
 }
