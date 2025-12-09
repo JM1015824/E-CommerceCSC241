@@ -11,9 +11,11 @@ public class LoginFrame extends JFrame{
     private JPasswordField passwordField;
     private JButton loginButton;
     private UserStorage userStorage;
+    private OrderInventory orderInventory;
 
-    public LoginFrame(UserStorage userStorage) {
+    public LoginFrame(UserStorage userStorage, OrderInventory orderInventory) {
         this.userStorage = userStorage;
+        this.orderInventory = orderInventory;
 
         setTitle("Login");
         setSize(300, 150);
@@ -54,11 +56,11 @@ public class LoginFrame extends JFrame{
         // Hardcoded accounts
         if (username.equals("admin") && password.equals("password")) {
             dispose();
-            new AdminDashboard(userStorage);
+            new AdminDashboard(userStorage, new OrderInventory());
             return;
         } else if (username.equals("customer") && password.equals("password")) {
             EStore.currentCart = new Cart(1, "customer");
-            new CustomerDashboard(userStorage);
+            new CustomerDashboard(userStorage, "customer");
             dispose();
             return;
         }
@@ -68,10 +70,10 @@ public class LoginFrame extends JFrame{
         if (user != null && user.getPassword().equals(password)) {
             dispose();
             if (user.getRole().equalsIgnoreCase("admin")) {
-                new AdminDashboard(userStorage);
+                new AdminDashboard(userStorage, new OrderInventory());
             } else {
                 EStore.currentCart = new Cart(1, user.getName());
-                new CustomerDashboard(userStorage);
+                new CustomerDashboard(userStorage, user.getName());
             }
         } else {
             JOptionPane.showMessageDialog(this, "Invalid credentials", "Error", JOptionPane.ERROR_MESSAGE);
