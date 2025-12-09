@@ -4,9 +4,13 @@ import javax.swing.*;
 
 
 public class AdminDashboard extends JFrame {
-        private UserStorage userStorage;
-    public AdminDashboard(UserStorage userStorage) {
+    private UserStorage userStorage;
+    private OrderInventory orderInventory;
+
+    public AdminDashboard(UserStorage userStorage, OrderInventory orderInventory) {
         this.userStorage = userStorage;
+        this.orderInventory = orderInventory;
+
         setTitle("Admin Dashboard");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,13 +32,13 @@ public class AdminDashboard extends JFrame {
         addProduct.addActionListener(e -> new AddProductFrame());
         updateProduct.addActionListener(e -> new UpdateDeleteProductFrame());
         viewProducts.addActionListener(e -> new ViewProductsFrame());
-        viewOrders.addActionListener(e -> new ViewOrdersFrame());
-        updateOrderStatus.addActionListener(e -> new UpdateOrderStatusFrame());
+        viewOrders.addActionListener(e -> new ViewOrdersFrame(orderInventory));
+        updateOrderStatus.addActionListener(e -> new UpdateOrderStatusFrame(orderInventory));
         reports.addActionListener(e -> new ReportsFrame());
         
         logout.addActionListener(e -> {
             dispose();
-            new LoginFrame(userStorage);
+            new LoginFrame(userStorage, EStore.orderInventory);
 
         });
 
