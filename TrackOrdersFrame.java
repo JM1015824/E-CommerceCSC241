@@ -1,6 +1,3 @@
-
-
-
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
@@ -8,7 +5,7 @@ import javax.swing.*;
 
 
 public class TrackOrdersFrame extends JFrame{
-        public TrackOrdersFrame() {
+        public TrackOrdersFrame(String customerName) {
         setTitle("Track Orders");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
