@@ -1,15 +1,15 @@
-
-
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
 
 public class CustomerDashboard extends JFrame{
+        private String customerName;
         private UserStorage userStorage;
 
-    public CustomerDashboard(UserStorage userStorage) {
+    public CustomerDashboard(UserStorage userStorage, String customerName) {
         this.userStorage = userStorage;
+        this.customerName = customerName;
 
         setTitle("Customer Dashboard");
         setSize(400, 300);
@@ -29,9 +29,9 @@ public class CustomerDashboard extends JFrame{
 
         browseProducts.addActionListener(e -> new BrowseProductsFrame());
         searchProducts.addActionListener(e -> new SearchProductsFrame());
-        viewCart.addActionListener(e -> new ViewCartFrame());
-        orderHistory.addActionListener(e -> new OrderHistoryFrame());
-        trackOrders.addActionListener(e -> new TrackOrdersFrame());
+        viewCart.addActionListener(e -> new ViewCartFrame(customerName));
+        orderHistory.addActionListener(e -> new OrderHistoryFrame(customerName));
+        trackOrders.addActionListener(e -> new TrackOrdersFrame(customerName));
         logout.addActionListener(e -> {
             dispose();
             new LoginFrame(userStorage);
