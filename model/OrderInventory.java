@@ -4,6 +4,7 @@ import java.util.*;
 public class OrderInventory {
     private final List<Order> orders;
     private final Queue<Order> orderQueue; // Queue for pending orders
+    private final Stack<Order> deliveredOrders = new Stack<>();
 
     public OrderInventory() {
         this.orders = new ArrayList<>();
@@ -55,15 +56,15 @@ public class OrderInventory {
         }
     }
 
-    // Get pending orders
-    public List<Order> getPendingOrders() {
-        List<Order> pendingOrders = new ArrayList<>();
+    // Get processed orders
+    public List<Order> getProcessedOrders() {
+        List<Order> processedOrders = new ArrayList<>();
         for (Order order : orders) {
-            if (order.getStatus() == Order.Status.PENDING) {
-                pendingOrders.add(order);
+            if (order.getStatus() == Order.Status.PROCESSED) {
+                processedOrders.add(order);
             }
         }
-        return pendingOrders;
+        return processedOrders;
     }
 
     // Get shipped orders
@@ -78,14 +79,13 @@ public class OrderInventory {
     }
 
     // Get delivered orders
-    public List<Order> getDeliveredOrders() {
-        List<Order> deliveredOrders = new ArrayList<>();
+    public void getDeliveredOrders() {
         for (Order order : orders) {
             if (order.getStatus() == Order.Status.DELIVERED) {
-                deliveredOrders.add(order);
+                deliveredOrders.push(order);
             }
         }
-        return deliveredOrders;
+        return;
     }
 
     // Add a new order (used internally)
