@@ -4,7 +4,12 @@ import javax.swing.*;
 
 
 public class ViewCartFrame extends JFrame{
-        public ViewCartFrame() {
+    private String customerName;
+
+
+    public ViewCartFrame(String customerName) {
+        this.customerName = customerName;
+            
         setTitle("View Cart");
         setSize(500, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -37,7 +42,7 @@ public class ViewCartFrame extends JFrame{
                 String productId = (String) table.getValueAt(selectedRow, 0);
                 cart.removeProduct(productId);
                 dispose();
-                new ViewCartFrame();
+                new ViewCartFrame(customerName);
             } else {
                 JOptionPane.showMessageDialog(this, "No item selected", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -65,9 +70,11 @@ public class ViewCartFrame extends JFrame{
                 JOptionPane.showMessageDialog(this, "Cart is empty", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            Order newOrder = EStore.orderInventory.createOrder(cart);
-            JOptionPane.showMessageDialog(this, "Order placed successfully! Order ID: " + newOrder.getOrderId(), "Success", JOptionPane.INFORMATION_MESSAGE);
-            EStore.currentCart = new Cart(1, "customer");
+            Order newOrder = EStore.orderInventory.placeOrder(customerName, cart.getItems());
+            JOptionPane.showMessageDialog(this, 
+                "Order placed successfully! Order ID: " + newOrder.getOrderId(),
+                 "Success", JOptionPane.INFORMATION_MESSAGE);
+            EStore.currentCart = new Cart(1, customerName);
             dispose();
         });
        
