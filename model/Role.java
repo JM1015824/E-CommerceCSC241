@@ -1,5 +1,5 @@
 
 public enum Role {
-    cUSTOMER,
+    CUSTOMER,
     ADMIN
 }
